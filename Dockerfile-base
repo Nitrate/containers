@@ -1,0 +1,47 @@
+ARG base_image=registry.fedoraproject.org/fedora:35
+FROM ${base_image}
+
+ARG version=latest
+ARG build_latest=no
+# For mod_wsgi to store socket file.
+# https://modwsgi.readthedocs.io/en/master/configuration-directives/WSGISocketPrefix.html#wsgisocketprefix
+ARG wsgi_dir=/var/run/wsgi
+ARG extra_requires="async,mysql,pgsql,bugzilla,socialauth"
+
+LABEL name=Nitrate
+LABEL license=GPLv2+
+LABEL version="${version}"
+LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
+LABEL vendor=""
+LABEL description="Nitrate is a new test plan, test run and test case management system, \
+which is written in Python and Django (the Python web framework). Base image includes \
+installed Nitrate."
+LABEL io.github.nitrate.url="https://nitrate.readthedocs.io/"
+LABEL io.github.nitrate.vcs-url="https://github.com/Nitrate/Nitrate"
+LABEL io.github.nitrate.issues-url="https://github.com/Nitrate/Nitrate/issues/"
+
+ENV PYTHONPATH=/nitrate-config
+ENV DJANGO_SETTINGS_MODULE=tcms.settings.product
+
+WORKDIR /project
+
+ADD nitrate-tcms-"${version}".tar.gz .
+
+RUN dnf update -y && \
+    dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
+        python3-pip python3-setuptools gcc python3-devel mariadb-devel postgresql-devel && \
+    dnf clean all
+
+RUN python3 -m venv venv && \
+    ./venv/bin/python3 -m pip install --no-cache-dir --disable-pip-version-check \
+        nitrate-tcms-"${version}"/["${extra_requires}"] && \
+    mkdir templates static uploads nitrate-config data && \
+    cp -r nitrate-tcms-"${version}"/src/templates/* templates/ && \
+    echo "STATIC_ROOT = '/project/static'" >>nitrate-tcms-"${version}"/src/tcms/settings/common.py && \
+    PYTHONPATH=nitrate-tcms-"${version}"/src/ NITRATE_DB_ENGINE=sqlite NITRATE_SECRET_KEY=some-key \
+        ./venv/bin/python3 nitrate-tcms-"${version}"/src/manage.py collectstatic \
+        --settings=tcms.settings.product --noinput && \
+    rm -r nitrate-tcms-"${version}"
+
+# SQLite database file could be placed in this volume
+VOLUME ["/project/data"]

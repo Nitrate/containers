@@ -1,0 +1,16 @@
+ARG ns=quay.io/nitrate
+ARG version=latest
+FROM ${ns}/nitrate:base-${version}
+
+LABEL name=Nitrate
+LABEL license=GPLv2+
+LABEL version="${version}"
+LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
+LABEL vendor=""
+LABEL description="Nitrate worker image to run asynchronous tasks."
+LABEL io.github.nitrate.url="https://nitrate.readthedocs.io/"
+LABEL io.github.nitrate.vcs-url="https://github.com/Nitrate/Nitrate"
+LABEL io.github.nitrate.issues-url="https://github.com/Nitrate/Nitrate/issues/"
+
+VOLUME ["/project/uploads"]
+CMD ["/project/venv/bin/celery", "-A", "tcms", "worker", "-l", "INFO"]
