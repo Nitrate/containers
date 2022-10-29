@@ -16,9 +16,6 @@ Related Links:
 
 ## Tags
 
-`latest` is applied to the image built from latest `develop`
-branch. It can also be called the development version of Nitrate.
-
 For a regular release, a specific version like `4.10` is applied to
 the image.
 
@@ -29,56 +26,53 @@ To list tags from command line:
 
 - `make images-overview [version=<version>]`
 
+Each release includes three tags:
+
+- `base-<version>`: a base image including installed Nitrate inside a
+  provisioned virtual environment.
+- `web-<version>`: a frontend based on the base image to run Nitrate Web application.
+- `worker-<version>`: a backend based on the base image to run
+  asynchronous tasks in a Celery worker.
+
 ## Worker Image
 
-Nitrate supports to schedule asynchronous tasks as Celery
-tasks. Hence, worker container is required to receive the tasks from a
-broker and execute them. There is a built worker image in the
-[nitrate-worker](https://quay.io/repository/nitrate/nitrate-worker?tab=tags)
-repository. If you need the asynchronous functionality, the worker
-image could be deployed with this Web image together in your
-environment.
+Nitrate supports to schedule asynchronous tasks as Celery tasks. To
+launch a worker container for runnign the asynchronous tasks, a broker
+has to be deployed and configured properly so that tasks can be
+scheduled and delivered to the worker. Generally, a messaging bus
+supporting AMQP is a good choice to be a broker between the Web
+frontend and workers.
 
-The worker image has same tag scheme. Refer to the above [Tags](#tags)
-section.
+Please note that, Nitrate is able to run without a worker running in
+the backend.
 
-When making a new release of Nitrate, both this Web and the worker
-image are built and published to the repositories individually.
-
-**Hint**: You can try the worker image with the [container-compose.yml](https://github.com/Nitrate/Nitrate/blob/master/container-compose.yml).
+**Hint**: There is an example to run Web frontend and the worker
+together. Please refer to
+[container-compose.yml](https://github.com/Nitrate/Nitrate/blob/master/container-compose.yml).
 
 ## Usage
 
-This image only has installed Nitrate Web application. If persistent
-data storage is required, a well-configured database container, like
-MariaDB or PostgreSQL, has to be deployed as well.
+There are built images for every release, which are also pushed to
+`quay.io/nitrate` organization. You can pull Nitrate from there and
+run it in your favourite container envrionment. Meanwhile, it is also
+free to customize and build images by yourself according to your own
+requirement.
 
-In practice, there are several ways to run the container.
+### Run in local
 
-### Run locally
+There are several ways to run Nitrate in local. 
 
-Nitrate is able to run locally by either `docker` or `podman` and be
-linked to a database container:
+Run directly and link the frontend and a database:
 
-```
-podman run -p 80:80 -t quay.io/nitrate/nitrate:4.12
-```
-
-Following various environment variables can be set to initialize the
-container to connect the database container.
-
-To launch the whole environment quickly in an easier way than running
-podman command, you can use the `podman-compose` or `docker-compose`
-to up containers.
-
-```
-podman-compose up
+```bash
+podman run -p 8080:8080 -t quay.io/nitrate/nitrate:web-4.12
 ```
 
-Nitrate source code provides the
-[container-compose.yml](https://github.com/Nitrate/Nitrate/blob/master/container-compose.yml)
-to up Nitrate locally. **Note that**, please do not use it as a
-production environment.
+As forementioned, launch by compose:
+
+```bash
+podman-compose -f container-compose.yml up
+```
 
 ### Run in the cloud
 
@@ -89,7 +83,7 @@ In case you are using the OpenShift, please move to
 https://docs.openshift.com/.
 
 In whatever the way you run the Nitrate in the cloud, the environment
-variables and volumes described following may be used to customize the
+variables and volumes described below may be used to customize the
 use and maintenance.
 
 ## Environment Variables
@@ -162,30 +156,6 @@ Nitrate in your cloud environment, customization should be
 required. To customize the settings, create a Python module
 `nitrate_custom_conf.py` inside a directory which will be mounted to
 this container volume.
-
-## Manual operations
-
-Several environment variables mentioned above are optional to be
-set. Without setting those variables, administrator is able to do the
-equivalent operations manually.
-
-### Run database migrations
-
-```bash
-podman exec -it [container name] django-admin migrate
-```
-
-### Create a superuser
-
-```bash
-podman exec -it [container name] django-admin createsuperuser
-```
-
-### Create default groups with permissions
-
-```bash
-podman exec -it [container name] django-admin setdefaultperms
-```
 
 ## Report Issues
 
