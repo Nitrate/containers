@@ -68,7 +68,7 @@ Examples:
 
 - Build frontend for version 4.12: `make web-image version=4.12`
 - Build all images and push to registry: `make all-images push-images version=4.12`
-- Use newer Fedora release: `make base-image baseimage=registry.fedoraproject.org/fedora/37`
+- Use newer Fedora release: `make base-image baseimage=registry.fedoraproject.org/fedora:37`
 - Build and push to my own organization on registry: `make all-images push-all ns=registry/my-own`
 - Use `docker` to build: `make base-image engine=docker`
 
