@@ -50,6 +50,28 @@ the backend.
 together. Please refer to
 [container-compose.yml](https://github.com/Nitrate/Nitrate/blob/master/container-compose.yml).
 
+## Make Images
+
+- Make all images: `make all-images`
+- Make single component image: `make base-image`, `make web-image`,
+  `make worker-image`
+
+The image can be customized by passing various variables:
+
+- `engine`: images are built by podman by default. `docker` can be
+  specified when necessary.
+- `version`: build image for this specific version.
+- `baseimage`: use this image as the base image to build images.
+- `ns`: namespace in the registry.
+
+Examples:
+
+- Build frontend for version 4.12: `make web-image version=4.12`
+- Build all images and push to registry: `make all-images push-images version=4.12`
+- Use newer Fedora release: `make base-image baseimage=registry.fedoraproject.org/fedora/37`
+- Build and push to my own organization on registry: `make all-images push-all ns=registry/my-own`
+- Use `docker` to build: `make base-image engine=docker`
+
 ## Usage
 
 There are built images for every release, which are also pushed to
