@@ -4,9 +4,6 @@ Nitrate is a full-featured test plan, test run and test case
 management system, which is written in Python and Django web
 framework.
 
-Nitrate is installed and configured with minimized configuration to
-run.
-
 Related Links:
 
 - Documentation: https://nitrate.readthedocs.io/
@@ -56,10 +53,6 @@ frontend and workers.
 Please note that, Nitrate is able to run without a worker running in
 the backend.
 
-**Hint**: There is an example to run Web frontend and the worker
-together. Please refer to
-[container-compose.yml](https://github.com/Nitrate/Nitrate/blob/master/container-compose.yml).
-
 ## Make Images
 
 - Make all images: `make all-images`
@@ -100,11 +93,7 @@ Run directly and link the frontend and a database:
 podman run -p 8080:8080 -t quay.io/nitrate/nitrate:web-4.12
 ```
 
-As forementioned, launch by compose:
-
-```bash
-podman-compose -f container-compose.yml up
-```
+As forementioned, launch by compose: `podman-compose up`
 
 ### Run in the cloud
 
