@@ -3,22 +3,17 @@ ARG version=latest
 
 FROM ${ns}/nitrate:base-${version}
 
-ARG build_latest=no
 # For mod_wsgi to store socket file.
 # https://modwsgi.readthedocs.io/en/master/configuration-directives/WSGISocketPrefix.html#wsgisocketprefix
 ARG wsgi_dir=/var/run/wsgi
 ARG extra_requires="async,mysql,pgsql,bugzilla,socialauth"
 
 LABEL name=Nitrate
+LABEL component=web
 LABEL license=GPLv2+
-LABEL version="${version}"
 LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
-LABEL vendor=""
 LABEL description="Nitrate is a new test plan, test run and test case management system, \
 which is written in Python and Django (the Python web framework)."
-LABEL io.github.nitrate.url="https://nitrate.readthedocs.io/"
-LABEL io.github.nitrate.vcs-url="https://github.com/Nitrate/Nitrate"
-LABEL io.github.nitrate.issues-url="https://github.com/Nitrate/Nitrateissues/"
 
 RUN dnf update -y && \
     dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs \

@@ -30,9 +30,19 @@ Each release includes three tags:
 
 - `base-<version>`: a base image including installed Nitrate inside a
   provisioned virtual environment.
-- `web-<version>`: a frontend based on the base image to run Nitrate Web application.
+- `web-<version>`: a frontend based on the base image to run Nitrate
+  Web application.
 - `worker-<version>`: a backend based on the base image to run
   asynchronous tasks in a Celery worker.
+
+## Development version of images
+
+Development version of images are built from `develop` branch, which
+follow the latest development. The built images always have tags:
+
+- `quay.io/nitrate/nitrate:base-develop`
+- `quay.io/nitrate/nitrate:web-develop`
+- `quay.io/nitrate/nitrate:worker-develop`
 
 ## Worker Image
 
