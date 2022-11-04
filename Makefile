@@ -4,7 +4,7 @@ engine ?= podman
 ns ?= quay.io/nitrate
 baseimage ?=
 
-sdist = nitrate-tcms=="$(version)"
+sdist = nitrate-tcms==$(version)
 my_base_image = $(ns)/nitrate:base-$(version)
 web_image = $(ns)/nitrate:web-$(version)
 worker_image = $(ns)/nitrate:worker-$(version)
@@ -18,7 +18,7 @@ tarball-released:
 
 .PHONY: tarball-develop
 tarball-develop:
-	@[ -e "./Nitrate/" ] && rm -rf Nitrate
+	@if [ -e "./Nitrate/" ]; then rm -rf Nitrate; fi
 	@git clone --depth 1 https://github.com/Nitrate/Nitrate.git
 	@cd Nitrate && make tarball
 	@mv Nitrate/dist/*.tar.gz .
