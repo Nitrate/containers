@@ -93,5 +93,10 @@ images-overview:
 lint-markdown:
 	@markdownlint-cli2 README.md
 
+.PHONY: lint-dockerfile
+# Pin to hadolint 2.10.0
+lint-dockerfile:
+	@hadolint --ignore DL3041 Dockerfile-base Dockerfile-web Dockerfile-worker
+
 .PHONY: lint-all
-lint-all: lint-markdown
+lint-all: lint-markdown lint-dockerfile
