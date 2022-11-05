@@ -44,3 +44,25 @@ jobs:
             engine=docker \
             baseimage=registry.fedoraproject.org/fedora:36 \
             ns=quay.io/nitratecontainerstest
+
+  # A simple test to check if the launched instance is able to respond normally.
+  test_run:
+    name: Test Nitrate run
+    needs: [build_develop, build_release]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["4.11", "develop"]
+    steps:
+      - run: sudo apt-get install -y docker-compose
+      - uses: actions/checkout@v3
+      - run: |
+          export NS=quay.io/nitratecontainerstest
+          export VERSION=${{ matrix.version }}
+          docker-compose up -d
+          echo Wait for all component to start completely
+          sleep 20s
+          echo Execute curl inside web container
+          docker-compose exec -T web bash -c "curl -L http://127.0.0.1:8080/"
+          echo Get logs and verify an expected response
+          docker-compose logs web | tail -n 1 | grep '"GET /accounts/login/ HTTP/1.1" 200 [0-9]\+$'
