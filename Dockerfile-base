@@ -1,5 +1,5 @@
-ARG base_image=registry.fedoraproject.org/fedora:35
-FROM ${base_image}
+ARG base_image
+FROM ${base_image:-registry.fedoraproject.org/fedora:35}
 
 ARG version=latest
 ARG released=yes
