@@ -27,9 +27,9 @@ RUN mkdir bootstrap ${wsgi_dir} && \
 WORKDIR /project
 COPY product.py ./venv/lib64/python3.10/site-packages/tcms/settings/product.py
 COPY httpd.conf /etc/httpd/conf/httpd.conf
-COPY entrypoint.sh ./bootstrap/
-RUN chmod 755 ./bootstrap/entrypoint.sh
+COPY entrypoint.sh .
+RUN chmod 755 entrypoint.sh
 EXPOSE 8080
 USER apache
 VOLUME ["/var/log/httpd", "/project/nitrate-config", "/project/uploads"]
-ENTRYPOINT ["./bootstrap/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
