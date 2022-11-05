@@ -6,10 +6,10 @@ framework.
 
 Related Links:
 
-- Documentation: https://nitrate.readthedocs.io/
-- Source of Nitrate: https://github.com/Nitrate/Nitrate/
-- Source of containers: https://github.com/Nitrate/containers/
-- Issues: https://github.com/Nitrate/Nitrate/issues/
+- Documentation: <https://nitrate.readthedocs.io/>
+- Source of Nitrate: <https://github.com/Nitrate/Nitrate/>
+- Source of containers: <https://github.com/Nitrate/containers/>
+- Issues: <https://github.com/Nitrate/Nitrate/issues/>
 
 ## Tags
 
@@ -85,7 +85,7 @@ requirement.
 
 ### Run in local
 
-There are several ways to run Nitrate in local. 
+There are several ways to run Nitrate in local.
 
 Run directly and link the frontend and a database:
 
@@ -101,7 +101,7 @@ To deploy Nitrate in the could, please refer to the documentation of
 the specific cloud product.
 
 In case you are using the OpenShift, please move to
-https://docs.openshift.com/.
+<https://docs.openshift.com/>.
 
 In whatever the way you run the Nitrate in the cloud, the environment
 variables and volumes described below may be used to customize the
@@ -174,7 +174,7 @@ permissions to them.
 
 ## Report Issues
 
-Report issue here https://github.com/Nitrate/Nitrate/issues/new
+Report issue here <https://github.com/Nitrate/Nitrate/issues/new>
 
 ## Sign-off commit
 
@@ -188,7 +188,7 @@ git commit -s -m "commit message"
 The sign-off means you have read and agreed to [Developer Certificate
 of Origin](https://developercertificate.org/):
 
-```
+```plain
 Developer Certificate of Origin
 Version 1.1
 

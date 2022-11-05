@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint_markdown:
+    name: Lint markdown files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install packages to provision environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y npm make
+      - name: Install linter tool
+        run: |
+          mkdir ~/npm
+          cd ~/npm
+          npm install markdownlint-cli2
+      - name: Get the code
+        uses: actions/checkout@v3
+      - name: Run linter
+        run: |
+          PATH=~/npm/node_modules/.bin:$PATH make lint-all

@@ -87,3 +87,11 @@ images-overview:
 	@echo $(my_base_image)
 	@echo $(web_image)
 	@echo $(worker_image)
+
+
+.PHONY: lint-markdown
+lint-markdown:
+	@markdownlint-cli2 README.md
+
+.PHONY: lint-all
+lint-all: lint-markdown
