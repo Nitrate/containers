@@ -11,35 +11,36 @@ Related Links:
 - Source of containers: <https://github.com/Nitrate/containers/>
 - Issues: <https://github.com/Nitrate/Nitrate/issues/>
 
-## Tags
+## Images
 
-For a regular release, a specific version like `4.10` is applied to
-the image.
+Nitrate container images will be built into three separate images:
 
-To list all tags including previous versions, please move to
-[Tags](https://quay.io/repository/nitrate/nitrate?tab=tags) page.
+- `base`: a base image including installed Nitrate inside a
+  provisioned virtual environment.
+- `web`: a frontend based on the base image to run Nitrate Web
+  application.
+- `worker`: a backend based on the base image to run asynchronous
+  tasks in a Celery worker.
+
+For a regular release, a specific version like `4.12` is applied to
+every component image, for example:
+
+- `quay.io/nitrate/base:4.12`
+- `quay.io/nitrate/web:4.12`
+- `quay.io/nitrate/worker:4.12`
 
 To list tags from command line:
 
 - `make images-overview [version=<version>]`
-
-Each release includes three tags:
-
-- `base-<version>`: a base image including installed Nitrate inside a
-  provisioned virtual environment.
-- `web-<version>`: a frontend based on the base image to run Nitrate
-  Web application.
-- `worker-<version>`: a backend based on the base image to run
-  asynchronous tasks in a Celery worker.
 
 ## Development version of images
 
 Development version of images are built from `develop` branch, which
 follow the latest development. The built images always have tags:
 
-- `quay.io/nitrate/nitrate:base-develop`
-- `quay.io/nitrate/nitrate:web-develop`
-- `quay.io/nitrate/nitrate:worker-develop`
+- `quay.io/nitrate/base:develop`
+- `quay.io/nitrate/web:develop`
+- `quay.io/nitrate/worker:develop`
 
 ## Worker Image
 
@@ -90,7 +91,7 @@ There are several ways to run Nitrate in local.
 Run directly and link the frontend and a database:
 
 ```bash
-podman run -p 8080:8080 -t quay.io/nitrate/nitrate:web-4.12
+podman run -p 8080:8080 -t quay.io/nitrate/web:4.12
 ```
 
 As forementioned, launch by compose: `podman-compose up`
