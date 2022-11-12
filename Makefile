@@ -5,9 +5,9 @@ ns ?= quay.io/nitrate
 baseimage ?=
 
 sdist = nitrate-tcms==$(version)
-my_base_image = $(ns)/nitrate:base-$(version)
-web_image = $(ns)/nitrate:web-$(version)
-worker_image = $(ns)/nitrate:worker-$(version)
+my_base_image = $(ns)/base:$(version)
+web_image = $(ns)/web:$(version)
+worker_image = $(ns)/worker:$(version)
 
 gh_tarball_url = https://github.com/Nitrate/Nitrate/tarball/develop
 gh_develop_archive = nitrate-tcms-develop.tar.gz
