@@ -1,6 +1,6 @@
 ARG ns=quay.io/nitrate
 ARG version=latest
-FROM ${ns}/nitrate:base-${version}
+FROM ${ns}/base:${version}
 
 LABEL name=Nitrate
 LABEL component=worker
