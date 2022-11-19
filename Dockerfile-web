@@ -1,6 +1,6 @@
 ARG ns=quay.io/nitrate
 ARG version=latest
-FROM ${ns}/nitrate:base-${version}
+FROM ${ns}/base:${version}
 
 # For mod_wsgi to store socket file.
 # https://modwsgi.readthedocs.io/en/master/configuration-directives/WSGISocketPrefix.html#wsgisocketprefix
