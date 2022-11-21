@@ -14,7 +14,7 @@ gh_develop_archive = nitrate-tcms-develop.tar.gz
 
 .PHONY: tarball-release
 tarball-released:
-	python3 -m pip download --no-deps --no-binary :all: $(sdist)
+	python3 -m pip download -vvv --no-deps --no-binary :all: $(sdist)
 
 .PHONY: tarball-develop
 tarball-develop:

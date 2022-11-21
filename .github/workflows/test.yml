@@ -21,9 +21,11 @@ jobs:
 
   build_release:
     name: Build from a release and push
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - run: sudo apt-get install -y make git
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y make git python3-pip
       - uses: actions/checkout@v3
       - name: Log into registry
         run: |
@@ -31,7 +33,7 @@ jobs:
               docker login -u "${{ secrets.quay_username }}" --password-stdin quay.io
       - run: |
           make all-images push-all \
-              engine=docker ns=quay.io/nitratecontainerstest version=4.11
+              engine=docker ns=quay.io/nitratecontainerstest version=4.13
 
   build_based_on_f36:
     name: Test build development version based on Fedora 36 only
