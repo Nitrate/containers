@@ -24,7 +24,7 @@ services:
     depends_on:
     - messagebus
     restart: always
-    image: "${NS:-quay.io/nitrate}/nitrate:worker-${VERSION:-develop}"
+    image: "${NS:-quay.io/nitrate}/worker:${VERSION:-develop}"
     volumes:
     - "./compose/custom_settings.py:/nitrate-config/nitrate_custom_conf.py:Z"
     environment:
@@ -40,7 +40,7 @@ services:
     - db
     - messagebus
     restart: always
-    image: "${NS:-quay.io/nitrate}/nitrate:web-${VERSION:-develop}"
+    image: "${NS:-quay.io/nitrate}/web:${VERSION:-develop}"
     ports:
     - "8001:8080"
     volumes:
