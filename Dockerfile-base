@@ -32,9 +32,7 @@ ADD nitrate-tcms-"${version}".tar.gz .
 RUN dnf update -y && \
     dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
         python3-pip python3-setuptools gcc python3-devel mariadb-devel postgresql-devel && \
-    dnf clean all
-
-RUN python3 -m venv venv && \
+    python3 -m venv venv && \
     ./venv/bin/python3 -m pip install --no-cache-dir --disable-pip-version-check \
         nitrate-tcms-"${version}"/["${extra_requires}"] && \
     mkdir templates static uploads nitrate-config data && \
@@ -43,6 +41,8 @@ RUN python3 -m venv venv && \
     PYTHONPATH=nitrate-tcms-"${version}"/src/ NITRATE_DB_ENGINE=sqlite NITRATE_SECRET_KEY=some-key \
         ./venv/bin/python3 nitrate-tcms-"${version}"/src/manage.py collectstatic \
         --settings=tcms.settings.product --noinput && \
+    dnf remove -y gcc && \
+    dnf clean all && \
     rm -r nitrate-tcms-"${version}"
 
 # SQLite database file could be placed in this volume

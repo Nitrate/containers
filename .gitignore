@@ -1,3 +1,5 @@
 nitrate-tcms-*.tar.gz
 *~
 Nitrate/
+*.swp
+.idea/
