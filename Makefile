@@ -12,21 +12,32 @@ worker_image = $(ns)/worker:$(version)
 gh_tarball_url = https://github.com/Nitrate/Nitrate/tarball/develop
 gh_develop_archive = nitrate-tcms-develop.tar.gz
 
+
+.PHONY: remove-app-tarball
+remove-app-tarball:
+	@rm -f app.tar.gz
+
 .PHONY: tarball-release
-tarball-released:
-	python3 -m pip download --no-deps --no-binary :all: $(sdist)
+tarball-released: remove-app-tarball
+	@python3 -m pip download --no-deps --no-binary :all: $(sdist)
+	@mv nitrate-tcms-"${version}".tar.gz app.tar.gz
 
 .PHONY: tarball-develop
-tarball-develop:
+tarball-develop: remove-app-tarball
 	@if [ -e "./Nitrate/" ]; then rm -rf Nitrate; fi
-	@git clone --depth 1 https://github.com/Nitrate/Nitrate.git
+	@git clone https://github.com/Nitrate/Nitrate.git
 	@cd Nitrate && make tarball
-	@mv Nitrate/dist/*.tar.gz .
+	@mv dist/nitrate-tcms-$$(cat VERSION.txt).tar.gz ../app.tar.gz
 
 ifeq ($(strip $(version)),develop)
 tarball-generation=tarball-develop
+label_released = no
+# e.g. v4.12-2-g
+label_version_regex = "^v[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?-[0-9]\+-g[0-9a-f]\+$"
 else
 tarball-generation=tarball-released
+label_released = yes
+label_version_regex = "^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$"
 endif
 
 .PHONY: base-image
@@ -34,7 +45,7 @@ base-image: $(tarball-generation)
 ifeq ($(strip $(version)), develop)
 	@$(engine) build -t $(my_base_image) -f Dockerfile-base \
 		$(if $(strip $(baseimage)),--build-arg base_image=$(baseimage),) \
-		--build-arg version=$(shell cat "Nitrate/VERSION.txt") \
+		--build-arg version=$$(git --git-dir Nitrate/.git describe) \
 		--build-arg released=no \
 		.
 else
@@ -100,3 +111,21 @@ lint-dockerfile:
 
 .PHONY: lint-all
 lint-all: lint-markdown lint-dockerfile
+
+
+.PHONY: check-images
+.ONESHELL:
+check-images:
+	@datafile=$(shell mktemp)
+	while read -r image expected_component
+	do
+		$(engine) inspect $$image >$$datafile
+		[ $$(cat $$datafile | jq -r '.[].Config.Labels.component') == "$$expected_component" ]
+		[ $$(cat $$datafile | jq -r '.[].Config.Labels.released') == "no" ]
+		cat $$datafile | jq -r '.[].Config.Labels.version' | grep '$(label_version_regex)' >/dev/null
+	done <<EOF
+	$(my_base_image) base
+	$(web_image) web
+	$(worker_image) worker
+	EOF
+	rm $$datafile
