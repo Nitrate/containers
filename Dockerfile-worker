@@ -8,5 +8,8 @@ LABEL license=GPLv2+
 LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
 LABEL description="Nitrate worker image to run asynchronous tasks."
 
+WORKDIR /project
+COPY product.py ./venv/lib64/python3.11/site-packages/tcms/settings/product.py
+
 VOLUME ["/project/uploads"]
 CMD ["/project/venv/bin/celery", "-A", "tcms", "worker", "-l", "INFO"]
