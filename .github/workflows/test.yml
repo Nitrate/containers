@@ -65,6 +65,17 @@ jobs:
           echo Wait for all component to start completely
           sleep 20s
           echo Execute curl inside web container
-          docker-compose exec -T web bash -c "curl -L http://127.0.0.1:8080/"
+          for counter in 1 2 3 4 5; do
+            echo "[$counter] Trying to connect http://127.0.0.1:8080 inside web container ..."
+            if docker-compose exec -T web bash -c "curl -L http://127.0.0.1:8080/" >/dev/null 2>&1; then
+              break
+            fi
+            if [ $counter -eq 5 ]; then
+              # Last time try, no need to sleep again since no more tries.
+              echo "error: cannot connect to http://127.0.0.1:8080 inside web container. Check if it launches properly."
+              exit 1
+            fi
+            sleep 3s
+          done
           echo Get logs and verify an expected response
           docker-compose logs web | tail -n 1 | grep '"GET /accounts/login/ HTTP/1.1" 200 [0-9]\+$'
