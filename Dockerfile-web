@@ -25,7 +25,7 @@ RUN mkdir bootstrap ${wsgi_dir} && \
     sed -i -e 's/^\(LoadModule mpm_event_module .\+\.so\)$/#\1/' /etc/httpd/conf.modules.d/00-mpm.conf
 
 WORKDIR /project
-COPY product.py ./venv/lib64/python3.10/site-packages/tcms/settings/product.py
+COPY product.py ./venv/lib64/python3.11/site-packages/tcms/settings/product.py
 COPY httpd.conf /etc/httpd/conf/httpd.conf
 COPY entrypoint.sh .
 RUN chmod 755 entrypoint.sh
