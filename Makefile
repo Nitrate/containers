@@ -4,14 +4,16 @@ engine ?= podman
 ns ?= quay.io/nitrate
 baseimage ?=
 
-sdist = nitrate-tcms==$(version)
-my_base_image = $(ns)/base:$(version)
-web_image = $(ns)/web:$(version)
-worker_image = $(ns)/worker:$(version)
+package_name = nitrate-tcms
 
 # NOTE: newer versions of setuptools (invoked via build) adhere to PEP 625
 # It replaces - with _
 normalised_sdist_name = nitrate_tcms
+
+sdist = $(package_name)==$(version)
+my_base_image = $(ns)/base:$(version)
+web_image = $(ns)/web:$(version)
+worker_image = $(ns)/worker:$(version)
 
 gh_tarball_url = https://github.com/Nitrate/Nitrate/tarball/develop
 gh_develop_archive = nitrate-tcms-develop.tar.gz
@@ -24,14 +26,22 @@ remove-app-tarball:
 .PHONY: tarball-release
 tarball-released: remove-app-tarball
 	@python3 -m pip download --no-deps --no-binary :all: $(sdist)
-	@mv $(normalised_sdist_name)-"${version}".tar.gz app.tar.gz
+	for sdist_name in $(package_name) $(normalised_sdist_name); do \
+		if mv $${sdist_name}-"$(version)".tar.gz app.tar.gz 2>&1; then
+			break; \
+		fi; \
+		done
 
 .PHONY: tarball-develop
 tarball-develop: remove-app-tarball
 	@if [ -e "./Nitrate/" ]; then rm -rf Nitrate; fi
 	@git clone https://github.com/Nitrate/Nitrate.git
 	@cd Nitrate && make sdist
-	@mv dist/$(normalised_sdist_name)-$$(cat VERSION.txt).tar.gz ../app.tar.gz
+	@for sdist_name in $(package_name) $(normalised_sdist_name); do \
+		if mv dist/$${sdist_name}-$$(cat VERSION.txt).tar.gz ../app.tar.gz >/dev/null 2>&1; then \
+			break; \
+		fi; \
+		done
 
 ifeq ($(strip $(version)),develop)
 tarball-generation=tarball-develop
@@ -87,7 +97,8 @@ clean-images:
 .PHONY: clean-artifacts
 clean-artifacts:
 	@[ -e "Nitrate/" ] && rm -rf Nitrate/
-	@rm -f $(normalised_sdist_name)-*.tar.gz
+	@rm -f $(package_name)-*.tar.gz || :
+	@rm -f $(normalised_sdist_name)-*.tar.gz || :
 
 .PHONY: clean
 clean: clean-images clean-artifacts
