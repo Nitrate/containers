@@ -1,7 +1,7 @@
 #!/usr/bin/bash -ex
 
 # Newer versions of setuptools adhere to PEP 625
-normalised_sdist_name=nitrate_tcms
+package_name=nitrate-tcms
 
 dnf update -y
 dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
@@ -10,8 +10,8 @@ dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
 python3 -m venv venv
 
 pybin=./venv/bin/python3
-# source tarball is already extracted under app/ with name ${normalised_sdist_name}-<version>
-appdir=$(echo app/${normalised_sdist_name}-*)
+# source tarball is already extracted under app/ with name ${package_name}-<version>
+appdir=$(echo app/${package_name}-*)
 srcdir="$appdir/src"
 
 "$pybin" -m pip install --no-cache-dir --disable-pip-version-check "$appdir"["${extra_requires}"]
