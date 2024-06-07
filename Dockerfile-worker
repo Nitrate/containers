@@ -2,11 +2,11 @@ ARG ns=quay.io/nitrate
 ARG version=latest
 FROM ${ns}/base:${version}
 
-LABEL name=Nitrate
-LABEL component=worker
-LABEL license=GPLv2+
-LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
-LABEL description="Nitrate worker image to run asynchronous tasks."
+LABEL name=Nitrate \
+    component=worker \
+    license=GPLv2+ \
+    maintainer="Chenxiong Qi <qcxhome@gmail.com>" \
+    description="Nitrate worker image to run asynchronous tasks."
 
 WORKDIR /project
 COPY product.py ./venv/lib64/python3.11/site-packages/tcms/settings/product.py
