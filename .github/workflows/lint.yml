@@ -20,7 +20,7 @@ jobs:
           cd ~/npm
           npm install markdownlint-cli2
       - name: Get the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run linter
         run: |
           PATH=~/npm/node_modules/.bin:$PATH make lint-markdown
@@ -37,7 +37,7 @@ jobs:
           curl -L -O https://github.com/hadolint/hadolint/releases/download/v2.10.0/hadolint-Linux-x86_64
           mv hadolint-Linux-x86_64 hadolint
           chmod u+x hadolint
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run linter
         run: |
           PATH=~/.local/bin:$PATH make lint-dockerfile

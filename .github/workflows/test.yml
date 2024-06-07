@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get install -y make git
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Log into registry
         run: |
           echo "${{ secrets.quay_token }}" | \
@@ -27,7 +27,7 @@ jobs:
       - run: |
           sudo apt-get update
           sudo apt-get install -y make git python3-pip
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Log into registry
         run: |
           echo "${{ secrets.quay_token }}" | \
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get install -y make git
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           pip install build
           make all-images \
@@ -59,7 +59,7 @@ jobs:
         version: ["4.13", "develop"]
     steps:
       - run: sudo apt-get install -y docker-compose
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           export NS=quay.io/nitratecontainerstest
           export VERSION=${{ matrix.version }}
