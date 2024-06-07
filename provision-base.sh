@@ -1,8 +1,5 @@
 #!/usr/bin/bash -ex
 
-# Newer versions of setuptools adhere to PEP 625
-package_name=nitrate-tcms
-
 dnf update -y
 dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
     python3-pip python3-setuptools gcc python3-devel mariadb-devel postgresql-devel
@@ -10,11 +7,16 @@ dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
 python3 -m venv venv
 
 pybin=./venv/bin/python3
-# source tarball is already extracted under app/ with name ${package_name}-<version>
-appdir=$(echo app/${package_name}-*)
-srcdir="$appdir/src"
+# source tarball is already extracted under app/
+appdir=()
+mapfile -t appdir < <(find app/ -maxdepth 1 -mindepth 1 -type d)
+if [ ${#appdir[@]} -gt 1 ]; then
+    echo "error: there must be only one extracted application directory, but here are" "${appdir[@]}"
+    exit 1
+fi
+srcdir="${appdir[0]}/src"
 
-"$pybin" -m pip install --no-cache-dir --disable-pip-version-check "$appdir"["${extra_requires}"]
+"$pybin" -m pip install --no-cache-dir --disable-pip-version-check "${appdir[0]}"["${extra_requires}"]
 
 mkdir templates
 cp -r "${srcdir}"/templates/* templates/
