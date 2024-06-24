@@ -26,9 +26,49 @@ ENV PYTHONPATH=/nitrate-config \
 WORKDIR /project
 
 ADD app.tar.gz app/
-COPY provision-base.sh .
 
-RUN chmod u+x provision-base.sh && ./provision-base.sh && rm provision-base.sh
+RUN <<EOF bash
+  set -ex
+
+  if [ \$(find app/ -maxdepth 1 -mindepth 1 -type d | wc -l) -gt 1 ]; then
+    echo "error: there must be only one extracted application directory, but there are more than on sub-directories."
+    exit 1
+  fi
+
+  app_dir=\$(find app/ -maxdepth 1 -mindepth 1 -type d)
+  app_src_dir="\${app_dir}/src"
+
+  mkdir templates
+  cp -r "\${app_src_dir}/templates"/* templates/
+
+  # Volume directories
+  mkdir uploads nitrate-config data
+
+  dnf \
+    --setopt=deltarpm=0 \
+    --setopt=install_weak_deps=false \
+    --nodocs \
+    --disablerepo fedora-cisco-openh264 \
+    install -y \
+    python3.11 python3.11-devel gcc mariadb-devel postgresql-devel
+
+  python3.11 -m venv venv
+  source ./venv/bin/activate
+
+  python3 -m pip install --no-cache-dir --disable-pip-version-check "\${app_dir}"["${extra_requires}"]
+
+  mkdir static
+  echo "STATIC_ROOT = '/project/static'" >>"\${app_src_dir}/tcms/settings/common.py"
+  export PYTHONPATH="\${app_src_dir}"
+  export NITRATE_DB_ENGINE=sqlite
+  export NITRATE_SECRET_KEY=some-key
+  python3 "\${app_src_dir}/manage.py" collectstatic --settings=tcms.settings.product --noinput
+
+  # Cleanup
+  dnf remove -y gcc
+  dnf clean all
+  rm -r app/
+EOF
 
 # SQLite database file could be placed in this volume
 VOLUME ["/project/data"]
