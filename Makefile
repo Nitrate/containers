@@ -18,6 +18,8 @@ worker_image = $(ns)/worker:$(version)
 gh_tarball_url = https://github.com/Nitrate/Nitrate/tarball/develop
 gh_develop_archive = nitrate-tcms-develop.tar.gz
 
+unset_labels = --unsetlabel=name --unsetlabel=license --unsetlabel=vendor --unsetlabel=version --unsetlabel=io.buildah.version
+
 
 .PHONY: remove-app-tarball
 remove-app-tarball:
@@ -61,6 +63,7 @@ ifeq ($(strip $(version)), develop)
 	$(engine) build -t $(my_base_image) -f Dockerfile-base \
 		$(if $(strip $(baseimage)),--build-arg base_image=$(baseimage),) \
 		--build-arg version=$$(git --git-dir Nitrate/.git describe) \
+		$(unset_labels) \
 		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
 		--label org.opencontainers.image.revision=$(shell git --git-dir Nitrate/.git rev-parse HEAD) \
 		.
@@ -68,6 +71,7 @@ else
 	$(engine) build -t $(my_base_image) -f Dockerfile-base \
 		$(if $(strip $(baseimage)),--build-arg base_image=$(baseimage),) \
 		--build-arg version=$(version) \
+		$(unset_labels) \
 		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
 		--label org.opencontainers.image.revision=$(shell sh -c "git ls-remote --tags --refs $(GIT_REPO) refs/tags/v$(version) | cut -f1") \
 		.
