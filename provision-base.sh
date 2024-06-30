@@ -1,7 +1,11 @@
 #!/usr/bin/bash -ex
 
-dnf update -y
-dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs install -y \
+dnf --disablerepo=fedora-cisco-openh264 update -y
+
+dnf --setopt=deltarpm=0 \
+    --setopt=install_weak_deps=false \
+    --nodocs \
+    install -y \
     python3-pip python3-setuptools gcc python3-devel mariadb-devel postgresql-devel
 
 python3 -m venv venv
