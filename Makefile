@@ -50,11 +50,8 @@ tarball-develop: remove-app-tarball
 
 ifeq ($(strip $(version)),develop)
 tarball-generation=tarball-develop
-# e.g. v4.12-2-g
-label_version_regex = "^v[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?-[0-9]\+-g[0-9a-f]\+$"
 else
 tarball-generation=tarball-released
-label_version_regex = "^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$"
 endif
 
 .PHONY: base-image
