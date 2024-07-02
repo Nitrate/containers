@@ -8,44 +8,40 @@ on:
 jobs:
   build_develop:
     name: Build from develop branch and push
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - run: sudo apt-get install -y make git
+      - run: sudo apt-get install -y make git podman python3-build
       - uses: actions/checkout@v4
       - name: Log into registry
         run: |
           echo "${{ secrets.quay_token }}" | \
-              docker login -u "${{ secrets.quay_username }}" --password-stdin quay.io
+              podman login -u "${{ secrets.quay_username }}" --password-stdin quay.io
       - run: |
-          pip install build
-          make all-images push-all engine=docker ns=quay.io/nitratecontainerstest
+          make all-images push-all ns=quay.io/nitratecontainerstest
 
   build_release:
     name: Build from a release and push
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - run: |
           sudo apt-get update
-          sudo apt-get install -y make git python3-pip
+          sudo apt-get install -y make git python3-pip podman
       - uses: actions/checkout@v4
       - name: Log into registry
         run: |
           echo "${{ secrets.quay_token }}" | \
-              docker login -u "${{ secrets.quay_username }}" --password-stdin quay.io
+              podman login -u "${{ secrets.quay_username }}" --password-stdin quay.io
       - run: |
-          make all-images push-all \
-              engine=docker ns=quay.io/nitratecontainerstest version=4.13
+          make all-images push-all ns=quay.io/nitratecontainerstest version=4.13
 
   build_based_on_f36:
     name: Test build development version based on Fedora 36 only
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - run: sudo apt-get install -y make git
+      - run: sudo apt-get install -y make git podman python3-build
       - uses: actions/checkout@v4
       - run: |
-          pip install build
           make all-images \
-            engine=docker \
             baseimage=registry.fedoraproject.org/fedora:36 \
             ns=quay.io/nitratecontainerstest
 
