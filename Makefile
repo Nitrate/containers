@@ -18,6 +18,8 @@ worker_image = $(ns)/worker:$(version)
 gh_tarball_url = https://github.com/Nitrate/Nitrate/tarball/develop
 gh_develop_archive = nitrate-tcms-develop.tar.gz
 
+unset_labels = --unsetlabel=name --unsetlabel=license --unsetlabel=vendor --unsetlabel=version --unsetlabel=io.buildah.version
+
 
 .PHONY: remove-app-tarball
 remove-app-tarball:
@@ -25,19 +27,22 @@ remove-app-tarball:
 
 .PHONY: tarball-release
 tarball-released: remove-app-tarball
-	@python3 -m pip download --no-deps --no-binary :all: $(sdist)
+	python3 -m pip download --no-deps --no-binary :all: $(sdist)
 	for sdist_name in $(package_name) $(normalised_sdist_name); do \
-		if mv $${sdist_name}-"$(version)".tar.gz app.tar.gz 2>&1; then
+		if mv $${sdist_name}-$(version).tar.gz app.tar.gz 2>&1; then \
 			break; \
 		fi; \
 		done
 
+GIT_REPO ?= https://github.com/Nitrate/Nitrate.git
+
 .PHONY: tarball-develop
 tarball-develop: remove-app-tarball
 	@if [ -e "./Nitrate/" ]; then rm -rf Nitrate; fi
-	@git clone https://github.com/Nitrate/Nitrate.git
-	@cd Nitrate && make sdist
-	@for sdist_name in $(package_name) $(normalised_sdist_name); do \
+	@git clone $(GIT_REPO)
+	cd Nitrate && \
+	make sdist && \
+	for sdist_name in $(package_name) $(normalised_sdist_name); do \
 		if mv dist/$${sdist_name}-$$(cat VERSION.txt).tar.gz ../app.tar.gz >/dev/null 2>&1; then \
 			break; \
 		fi; \
@@ -45,39 +50,45 @@ tarball-develop: remove-app-tarball
 
 ifeq ($(strip $(version)),develop)
 tarball-generation=tarball-develop
-label_released = no
-# e.g. v4.12-2-g
-label_version_regex = "^v[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?-[0-9]\+-g[0-9a-f]\+$"
 else
 tarball-generation=tarball-released
-label_released = yes
-label_version_regex = "^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$"
 endif
 
 .PHONY: base-image
 base-image: $(tarball-generation)
 ifeq ($(strip $(version)), develop)
-	@$(engine) build -t $(my_base_image) -f Dockerfile-base \
+	$(engine) build -t $(my_base_image) -f Dockerfile-base \
 		$(if $(strip $(baseimage)),--build-arg base_image=$(baseimage),) \
 		--build-arg version=$$(git --git-dir Nitrate/.git describe) \
-		--build-arg released=no \
+		$(unset_labels) \
+		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
+		--label org.opencontainers.image.revision=$(shell git --git-dir Nitrate/.git rev-parse HEAD) \
 		.
 else
-	@$(engine) build -t $(my_base_image) -f Dockerfile-base \
+	$(engine) build -t $(my_base_image) -f Dockerfile-base \
 		$(if $(strip $(baseimage)),--build-arg base_image=$(baseimage),) \
 		--build-arg version=$(version) \
+		$(unset_labels) \
+		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
+		--label org.opencontainers.image.revision=$(shell sh -c "git ls-remote --tags --refs $(GIT_REPO) refs/tags/v$(version) | cut -f1") \
 		.
 endif
 
 .PHONY: web-image
 web-image:
 	@$(engine) build -t $(web_image) -f Dockerfile-web \
-		--build-arg version=$(version) --build-arg ns=$(ns) .
+		--build-arg version=$(version) \
+		--build-arg ns=$(ns) \
+		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
+		.
 
 .PHONY: worker-image
 worker-image:
 	@$(engine) build -t $(worker_image) -f Dockerfile-worker \
-		--build-arg version=$(version) --build-arg ns=$(ns) .
+		--build-arg version=$(version) \
+		--build-arg ns=$(ns) \
+		--label org.opencontainers.image.created=$(shell date --utc --iso-8601=seconds) \
+		.
 
 .PHONY: all-images
 all-images: base-image web-image worker-image
@@ -90,15 +101,15 @@ push-all: base-image web-image worker-image
 
 .PHONY: clean-images
 clean-images:
-	@$(engine) rmi $(my_base_image) || :
-	@$(engine) rmi $(web_image) || :
-	@$(engine) rmi $(worker_image) || :
+	@$(engine) rmi -f $(my_base_image)
+	@$(engine) rmi -f $(web_image)
+	@$(engine) rmi -f $(worker_image)
 
 .PHONY: clean-artifacts
 clean-artifacts:
-	@[ -e "Nitrate/" ] && rm -rf Nitrate/
-	@rm -f $(package_name)-*.tar.gz || :
-	@rm -f $(normalised_sdist_name)-*.tar.gz || :
+	rm -rf Nitrate/
+	rm -f $(package_name)-*.tar.gz
+	rm -f $(normalised_sdist_name)-*.tar.gz
 
 .PHONY: clean
 clean: clean-images clean-artifacts
@@ -126,21 +137,3 @@ lint-dockerfile:
 
 .PHONY: lint-all
 lint-all: lint-markdown lint-dockerfile
-
-
-.PHONY: check-images
-.ONESHELL:
-check-images:
-	@datafile=$(shell mktemp)
-	while read -r image expected_component
-	do
-		$(engine) inspect $$image >$$datafile
-		[ $$(cat $$datafile | jq -r '.[].Config.Labels.component') == "$$expected_component" ]
-		[ $$(cat $$datafile | jq -r '.[].Config.Labels.released') == "no" ]
-		cat $$datafile | jq -r '.[].Config.Labels.version' | grep '$(label_version_regex)' >/dev/null
-	done <<EOF
-	$(my_base_image) base
-	$(web_image) web
-	$(worker_image) worker
-	EOF
-	rm $$datafile
