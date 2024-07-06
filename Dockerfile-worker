@@ -5,7 +5,7 @@ FROM ${ns}/base:${version}
 LABEL org.opencontainers.image.description="Nitrate worker image to run asynchronous tasks."
 
 WORKDIR /project
-COPY product.py ./venv/lib64/python3.11/site-packages/tcms/settings/product.py
+COPY product.py ./venv/lib64/python3.12/site-packages/tcms/settings/product.py
 
 VOLUME ["/project/uploads"]
 CMD ["/project/venv/bin/celery", "-A", "tcms", "worker", "-l", "INFO"]
