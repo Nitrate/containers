@@ -1,5 +1,5 @@
 ARG base_image
-FROM ${base_image:-registry.fedoraproject.org/fedora:38}
+FROM ${base_image:-registry.fedoraproject.org/fedora:39}
 
 ARG version=latest
 # For mod_wsgi to store socket file.
