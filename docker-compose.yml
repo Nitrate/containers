@@ -12,13 +12,27 @@ services:
     environment:
       MYSQL_DATABASE: nitrate
       MYSQL_ROOT_PASSWORD: nitrate
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: >-
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: mysqladmin ping -uroot -pnitrate
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
 
   messagebus:
     image: rabbitmq:3.13.3-alpine
     restart: always
     environment:
       RABBITMQ_DEFAULT_VHOST: myvhost
+    healthcheck:
+      test: rabbitmq-diagnostic -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   worker:
     depends_on:
@@ -59,6 +73,12 @@ services:
       NITRATE_SUPERUSER_USERNAME: admin
       NITRATE_SUPERUSER_PASSWORD: admin
       NITRATE_SUPERUSER_EMAIL: admin@example.com
+    healthcheck:
+      test: curl -L http://127.0.0.1:8080 | grep "<title>Nitrate</title>"
+      interval: 5s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
 
 
 # Run `docker inspect web` to see volume directory on host.

@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  NS: quay.io/nitratecontainerstest
+
 jobs:
   build_develop:
     name: Build from develop branch and push
@@ -17,7 +20,7 @@ jobs:
           echo "${{ secrets.quay_token }}" | \
               podman login -u "${{ secrets.quay_username }}" --password-stdin quay.io
       - run: |
-          make all-images push-all ns=quay.io/nitratecontainerstest
+          make all-images push-all ns=$NS
 
   build_release:
     name: Build from a release and push
@@ -32,37 +35,19 @@ jobs:
           echo "${{ secrets.quay_token }}" | \
               podman login -u "${{ secrets.quay_username }}" --password-stdin quay.io
       - run: |
-          make all-images push-all ns=quay.io/nitratecontainerstest version=4.13
+          make all-images push-all ns=$NS version=4.13
 
   # A simple test to check if the launched instance is able to respond normally.
   test_run:
     name: Test Nitrate run
     needs: [build_develop, build_release]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         version: ["4.13", "develop"]
     steps:
-      - run: sudo apt-get install -y docker-compose
+      - run: sudo apt-get install -y podman-compose
       - uses: actions/checkout@v4
       - run: |
-          export NS=quay.io/nitratecontainerstest
           export VERSION=${{ matrix.version }}
-          docker-compose up -d
-          echo Wait for all component to start completely
-          sleep 20s
-          echo Execute curl inside web container
-          for counter in 1 2 3 4 5; do
-            echo "[$counter] Trying to connect http://127.0.0.1:8080 inside web container ..."
-            if docker-compose exec -T web bash -c "curl -L http://127.0.0.1:8080/" >/dev/null 2>&1; then
-              break
-            fi
-            if [ $counter -eq 5 ]; then
-              # Last time try, no need to sleep again since no more tries.
-              echo "error: cannot connect to http://127.0.0.1:8080 inside web container. Check if it launches properly."
-              exit 1
-            fi
-            sleep 3s
-          done
-          echo Get logs and verify an expected response
-          docker-compose logs web | tail -n 1 | grep '"GET /accounts/login/ HTTP/1.1" 200 [0-9]\+$'
+          ./hack/test.sh
