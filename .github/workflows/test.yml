@@ -22,32 +22,14 @@ jobs:
       - run: |
           make all-images push-all ns=$NS
 
-  build_release:
-    name: Build from a release and push
-    runs-on: ubuntu-24.04
-    steps:
-      - run: |
-          sudo apt-get update
-          sudo apt-get install -y make git python3-pip podman
-      - uses: actions/checkout@v4
-      - name: Log into registry
-        run: |
-          echo "${{ secrets.quay_token }}" | \
-              podman login -u "${{ secrets.quay_username }}" --password-stdin quay.io
-      - run: |
-          make all-images push-all ns=$NS version=4.13
-
   # A simple test to check if the launched instance is able to respond normally.
   test_run:
-    name: Test Nitrate run
-    needs: [build_develop, build_release]
+    name: Check if Nitrate runs from built develop images
+    needs: [build_develop]
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        version: ["4.13", "develop"]
     steps:
       - run: sudo apt-get install -y podman-compose
       - uses: actions/checkout@v4
       - run: |
-          export VERSION=${{ matrix.version }}
+          export VERSION=develop
           ./hack/test.sh
