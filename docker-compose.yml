@@ -23,7 +23,7 @@ services:
       start_period: 5s
 
   messagebus:
-    image: rabbitmq:3.13.3-alpine
+    image: rabbitmq:3.13.4-alpine
     restart: always
     environment:
       RABBITMQ_DEFAULT_VHOST: myvhost
