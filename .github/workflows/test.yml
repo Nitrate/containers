@@ -34,17 +34,6 @@ jobs:
       - run: |
           make all-images push-all ns=quay.io/nitratecontainerstest version=4.13
 
-  build_based_on_f36:
-    name: Test build development version based on Fedora 36 only
-    runs-on: ubuntu-24.04
-    steps:
-      - run: sudo apt-get install -y make git podman python3-build
-      - uses: actions/checkout@v4
-      - run: |
-          make all-images \
-            baseimage=registry.fedoraproject.org/fedora:36 \
-            ns=quay.io/nitratecontainerstest
-
   # A simple test to check if the launched instance is able to respond normally.
   test_run:
     name: Test Nitrate run
