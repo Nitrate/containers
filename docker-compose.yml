@@ -26,7 +26,7 @@ services:
     restart: always
     image: "${NS:-quay.io/nitrate}/worker:${VERSION:-develop}"
     volumes:
-    - "./compose/custom_settings.py:/nitrate-config/nitrate_custom_conf.py:Z"
+    - "./compose/custom_settings.py:/project/nitrate-config/nitrate_custom_conf.py:Z"
     environment:
       NITRATE_DB_ENGINE: mysql
       NITRATE_DB_HOST: db
@@ -44,7 +44,7 @@ services:
     ports:
     - "8001:8080"
     volumes:
-    - "./compose/custom_settings.py:/nitrate-config/nitrate_custom_conf.py:Z"
+    - "./compose/custom_settings.py:/project/nitrate-config/nitrate_custom_conf.py:Z"
     - "nitrate_uploads:/code/uploads:Z"
     - "nitrate_httpd_logs:/var/log/httpd:Z"
     environment:

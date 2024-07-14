@@ -16,7 +16,7 @@ LABEL \
   org.opencontainers.image.documentation="https://nitrate.readthedocs.io/" \
   org.opencontainers.image.source="https://github.com/Nitrate/Nitrate"
 
-ENV PYTHONPATH=/nitrate-config \
+ENV PYTHONPATH=/project/nitrate-config \
     DJANGO_SETTINGS_MODULE=tcms.settings.product
 
 WORKDIR /project
