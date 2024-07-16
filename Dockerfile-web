@@ -22,7 +22,7 @@ RUN mkdir bootstrap ${wsgi_dir} && \
 # This seems useless since the parent image already sets it as WORKDIR
 WORKDIR /project
 
-COPY product.py ./venv/lib64/python3.11/site-packages/tcms/settings/product.py
+COPY product.py ./venv/lib64/python3.12/site-packages/tcms/settings/product.py
 COPY httpd.conf /etc/httpd/conf/httpd.conf
 COPY entrypoint.sh .
 RUN chmod 755 entrypoint.sh
