@@ -3,4 +3,10 @@
   "extends": [
     "config:recommended"
   ]
+  "packageRules": [
+    {
+      "matchPackageNames": ["registry.fedoraproject.org/fedora"],
+      "enabled": false
+    }
+  ]
 }
